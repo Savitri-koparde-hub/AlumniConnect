@@ -1,0 +1,58 @@
+// Event listener for form submission
+$("#create_account").submit(function (e) {
+    e.preventDefault();
+    var password = $("#password").val();
+
+    if (password.length < 8) {
+        // If the password is less than 8 characters, display an error message
+        $('#password-error').text("Password must be at least 8 characters long.");
+    } else {
+        // If the password is valid, proceed with form submission
+        start_load();
+        $.ajax({
+            url: 'admin/ajax.php?action=signup',
+            data: new FormData($(this)[0]),
+            cache: false,
+            contentType: false,
+            processData: false,
+            method: 'POST',
+            type: 'POST',
+            success: function (resp) {
+                if (resp == 1) {
+                    location.replace('index.php');
+                } else {
+                    $('#msg').html('<div class="alert alert-danger">Email already exists.</div>');
+                    end_load();
+                }
+            }
+        });
+    }
+});
+
+
+\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\
+// Function to validate the password
+function validatePassword(password) {
+    // Check if the password length is at least 8 characters
+    var isLengthValid = password.length >= 8;
+
+    // Check if the password contains at least one symbol, one number, and one alphabet character
+    var hasSymbol = /[!@#$%^&*()_+\-=[\]{};':"\\|,.<>/?]/.test(password);
+    var hasNumber = /\d/.test(password);
+    var hasAlphabet = /[a-zA-Z]/.test(password);
+
+    // Return true if all conditions are met, else return false
+    return isLengthValid && hasSymbol && hasNumber && hasAlphabet;
+}
+
+// Event listener to check password on input change
+$("#password").on("input", function () {
+    var password = $(this).val();
+    var isValid = validatePassword(password);
+
+    if (isValid) {
+        $("#password-error").text("");
+    } else {
+        $("#password-error").text("Password is invalid. It must be at least 8 characters and include at least one symbol, one number, and one alphabet character.");
+    }
+});
