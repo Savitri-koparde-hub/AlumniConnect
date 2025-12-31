@@ -1,11 +1,15 @@
 pipeline {
     agent any
 
+    environment {
+        PATH = "/opt/homebrew/bin:${env.PATH}"
+    }
+
     stages {
 
-        stage('Clone Repository') {
+        stage('Checkout Code') {
             steps {
-                git branch: 'main', url: 'https://github.com/Savitri-koparde-hub/AlumniConnect.git'
+                checkout scm
             }
         }
 
@@ -17,17 +21,23 @@ pipeline {
 
         stage('Validate PHP Syntax') {
             steps {
-                sh 'find . -name "*.php" -print0 | xargs -0 -n1 php -l'
+                sh '''
+                  echo "Validating PHP syntax..."
+                  find . -name "*.php" -print0 | xargs -0 -n1 php -l
+                '''
+            }
+        }
+
+        stage('Build / Test (optional)') {
+            steps {
+                sh 'echo "Add build or tests here"'
             }
         }
     }
 
     post {
-        success {
-            echo "Build passed 🎉"
-        }
-        failure {
-            echo "Build failed ❌"
+        always {
+            echo "Pipeline completed."
         }
     }
 }
